@@ -3,3 +3,39 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# NuGet packages and artifacts
+*.nupkg
+*.snupkg
+artifacts/
+coverage/
+
+# IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Temp files
+*.tmp
+*.temp

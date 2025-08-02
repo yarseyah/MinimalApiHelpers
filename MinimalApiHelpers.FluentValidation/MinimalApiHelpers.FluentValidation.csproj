@@ -1,5 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+        <PackageId>MinimalApiHelpers.FluentValidation</PackageId>
+        <Title>Minimal API Helpers - FluentValidation</Title>
+        <Description>FluentValidation extensions for MinimalApiHelpers, providing request and route parameter validation filters for ASP.NET Core Minimal APIs.</Description>
+        <PackageTags>$(PackageTags);fluentvalidation;validation;request-validation</PackageTags>
+    </PropertyGroup>
+
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
@@ -11,6 +18,11 @@
     <ItemGroup>
       <PackageReference Include="FluentValidation" />
       <PackageReference Include="JetBrains.Annotations" />
+      <PackageReference Include="MinVer" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../README.md" Pack="true" PackagePath="\" Condition="Exists('../README.md')" />
     </ItemGroup>
 
 </Project>

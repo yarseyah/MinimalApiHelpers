@@ -17,6 +17,34 @@
         <!-- Switch off XML documentation warnings -->
         <NoWarn>$(NoWarn);CS1591;CA1848</NoWarn>
     </PropertyGroup>
+
+    <!-- Common NuGet Package Properties -->
+    <PropertyGroup>
+        <Authors>Your Name</Authors>
+        <Company>Your Company</Company>
+        <Description>Minimal API helpers for ASP.NET Core</Description>
+        <Copyright>Copyright © Your Name 2025</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/yourusername/MinimalApiHelpers</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/yourusername/MinimalApiHelpers</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReleaseNotes>See https://github.com/yourusername/MinimalApiHelpers/releases</PackageReleaseNotes>
+        <PackageTags>aspnetcore;minimal-api;web-api;dotnet</PackageTags>
+        
+        <!-- Enable automatic package generation on build -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        
+        <!-- Embed PDB files for better debugging experience -->
+        <DebugType>embedded</DebugType>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        
+        <!-- Enable deterministic builds for reproducibility -->
+        <Deterministic>true</Deterministic>
+        <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    </PropertyGroup>
     
     <PropertyGroup>
         <!-- Enable NuGet package auditing -->
