@@ -36,10 +36,11 @@
         <!-- Enable automatic package generation on build -->
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeSymbols>true</IncludeSymbols>
+        <IncludeSource>true</IncludeSource>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         
         <!-- Embed PDB files for better debugging experience -->
-        <DebugType>embedded</DebugType>
+        <DebugType>portable</DebugType>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         
         <!-- Enable deterministic builds for reproducibility -->
