@@ -107,5 +107,5 @@ jobs:
     - name: Push to GitHub Packages
       run: |
         for package in ./artifacts/*.nupkg; do
-          dotnet nuget push "$package" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate
+          dotnet nuget push "$package" --api-key ${{ secrets.PUBLISH_GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate
         done
