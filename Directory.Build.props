@@ -20,16 +20,17 @@
 
     <!-- Common NuGet Package Properties -->
     <PropertyGroup>
-        <Authors>Your Name</Authors>
-        <Company>Your Company</Company>
+        <Authors>Ray Hayes</Authors>
+        <Company></Company>
         <Description>Minimal API helpers for ASP.NET Core</Description>
-        <Copyright>Copyright © Your Name 2025</Copyright>
+        <Copyright>Copyright © Ray Hayes 2025</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/yourusername/MinimalApiHelpers</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/yourusername/MinimalApiHelpers</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/yarseyah/MinimalApiHelpers</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/yarseyah/MinimalApiHelpers</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+        <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>See https://github.com/yourusername/MinimalApiHelpers/releases</PackageReleaseNotes>
+        <PackageReleaseNotes>See https://github.com/yarseyah/MinimalApiHelpers/releases</PackageReleaseNotes>
         <PackageTags>aspnetcore;minimal-api;web-api;dotnet</PackageTags>
         
         <!-- Enable automatic package generation on build -->
@@ -67,5 +68,9 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../assets/icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>
