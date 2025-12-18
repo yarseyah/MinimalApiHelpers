@@ -26,6 +26,11 @@ public class RequestValidationFilter<TRequest>(
         if (!validationResult.IsValid)
         {
             logger.LogWarning("{Request}: Validation failed", requestName);
+            foreach (var error in validationResult.Errors)
+            {
+                logger.LogTrace("Validation error: {@Error}", error);
+            }
+            
             logger.LogWarning(
                 "TODO: rather than throwing, share the same ProblemReport construction as the exception " +
                 "handler and return as TypedResults.ValidationException");
