@@ -1,13 +1,16 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Allow the Dependency Injection to know about all `AbstractValidator<T>`
-builder.Services.AddValidatorsFromAssemblyContaining<PingEndpoint>();
+builder.Services.AddValidatorsFromAssemblyContaining<ValidatedPingEndpoint>();
 
 var app = builder.Build();
 
-app.MapPublicGroup("/api")
-    .AddDefaultFiltersIncludingValidation()
-    .MapEndpoint<PingEndpoint>()
+app.MapPublicGroupWithValidation("/validated")
+    .MapEndpoint<ValidatedPingEndpoint>()
+    .MapEndpoint<PongEndpoint>();
+
+app.MapPublicGroup("/unvalidated")
+    .MapEndpoint<UnvalidatedPingEndpoint>()
     .MapEndpoint<PongEndpoint>();
 
 await app.RunAsync();
