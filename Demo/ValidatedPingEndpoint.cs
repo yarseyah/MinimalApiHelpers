@@ -1,9 +1,7 @@
 namespace Demo;
 
-using Microsoft.AspNetCore.Mvc;
-
 [UsedImplicitly]
-public sealed class PingEndpoint : IEndpoint
+public sealed class ValidatedPingEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder builder)
         => builder.MapGet("/ping", Handler)
