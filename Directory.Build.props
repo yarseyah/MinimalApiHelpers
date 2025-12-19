@@ -38,6 +38,9 @@
         <IncludeSymbols>true</IncludeSymbols>
         <IncludeSource>true</IncludeSource>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <!-- MinVer configuration -->
+        <MinVerAutoIncrement>patch</MinVerAutoIncrement>
         
         <!-- Embed PDB files for better debugging experience -->
         <DebugType>portable</DebugType>

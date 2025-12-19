@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MinimalApiHelpers\MinimalApiHelpers.csproj"/>
+        <ProjectReference Include="..\MinimalApiHelpers\MinimalApiHelpers.csproj" Version="$(Version)"/>
     </ItemGroup>
 
     <ItemGroup>
