@@ -16,6 +16,8 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     
     steps:
     - name: Checkout code
@@ -33,6 +35,13 @@ jobs:
     
     - name: Build
       run: dotnet build --configuration Release --no-restore
+    
+    - name: Get version
+      id: get_version
+      run: |
+        dotnet tool install --global minver-cli
+        VERSION=$(minver)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
     
     - name: Test
       run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
@@ -56,8 +65,15 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
@@ -86,6 +102,20 @@ jobs:
         for package in ./artifacts/*.snupkg; do
           dotnet nuget push "$package" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
         done
+
+    - name: Create and push tag
+      run: |
+        VERSION=${{ needs.build-and-test.outputs.version }}
+        if [ -n "$VERSION" ]; then
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists"
+          else
+            git tag "$VERSION"
+            git push origin "$VERSION"
+          fi
+        fi
 
   publish-to-github-packages:
     needs: build-and-test
