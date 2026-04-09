@@ -123,12 +123,14 @@ internal static class EndpointRouteBuilderExtensions
     {
         // Public (read) endpoints
         builder.MapPublicGroup("/fixtures").WithTags("Fixtures")
+            .AddValidationFilters() // when endpoints in this group use request/route validation
             .MapEndpoint<GetFixture>()
             .MapEndpoint<ListFixtures>()
             .MapEndpoint<ListFixturesByTeam>();
 
         // Protected (write) endpoints
         builder.MapProtectedGroup("/fixtures").WithTags("Fixtures")
+            .AddValidationFilters() // when endpoints in this group use request/route validation
             .MapEndpoint<CreateFixtures>()
             .MapEndpoint<DeleteFixture>();
 
@@ -222,6 +224,7 @@ internal static class EndpointRouteBuilderExtensions
     private static void MapPublicEndpoints(this IEndpointRouteBuilder builder)
     {
         builder.MapPublicGroup("/fixtures")
+            .AddValidationFilters()
             .MapEndpoint<GetFixture>()
             .MapEndpoint<ListFixtures>();
     }
@@ -229,6 +232,7 @@ internal static class EndpointRouteBuilderExtensions
     private static void MapRestrictedEndpoints(this IEndpointRouteBuilder builder)
     {
         builder.MapProtectedGroup("/fixtures")
+            .AddValidationFilters()
             .MapEndpoint<CreateFixture>()
             .MapEndpoint<DeleteFixture>();
     }
@@ -242,14 +246,18 @@ This is called once in `Program.cs` with `app.MapApiEndpoints()`.
 | Method | Auth | Use for |
 |---|---|---|
 | `MapPublicGroup(prefix)` | Anonymous | Read-only / public endpoints |
-| `MapProtectedGroup(prefix)` | `AuthorizationTodoReminderFilter` + anonymous | Write / admin endpoints |
+| `MapProtectedGroup(prefix)` | No auth policy applied automatically | Write / admin endpoints where auth is added explicitly |
 
 Both automatically apply `AddDefaultFilters()` which attaches:
 - `TimingFilter`, 
-- `ValidationExceptionFilter` (if using `MinimalApiHelpers.FluentValidation`), 
 - `InternalServerErrorExceptionFilter`, 
 - `EntityExistsVerificationFailureExceptionFilter`, 
 - `InternalExceptionsFilter`.
+
+To include validation exception handling for groups that use `WithRequestValidation(...)` or `WithRouteParameterValidation(...)`, use one of these patterns:
+
+1. Add `.AddValidationFilters()` after `MapPublicGroup(...)` / `MapProtectedGroup(...)`.
+2. Use `MapPublicGroupWithValidation(...)` / `MapProtectedGroupWithValidation(...)` convenience helpers.
 
 ### 3. `MapEndpoint<TEndpoint>()`
 
@@ -279,6 +287,7 @@ builder.MapGet("/", Handle)
 Requires:
 1. A `Validator : AbstractValidator<Request>` nested in the endpoint class (or a separate partial class file).
 2. Validators registered via `AddValidatorsFromAssemblies(...)` in `Program.cs` — the filter resolves `IValidator<TRequest>` from DI at runtime.
+3. The containing route group must include `ValidationExceptionFilter` via `.AddValidationFilters()` or the validation-specific group helpers.
 
 ### `WithEnsureEntityExists<TRequest, TExistsLookup>(...)`
 
@@ -393,16 +402,17 @@ The following filters are registered on all groups via `AddDefaultFilters()` —
 | Filter | Behaviour |
 |---|---|
 | `TimingFilter` | Appends `X-Elapsed-Milliseconds` to every response |
-| `ValidationExceptionFilter` | Converts `FluentValidation.ValidationException` to 400 ProblemDetails (or 404 for specific error codes) |
 | `InternalServerErrorExceptionFilter` | Converts `InternalServerErrorException` to 500 ProblemDetails |
 | `EntityExistsVerificationFailureExceptionFilter` | Handles entity-lookup failures from `WithEnsureEntityExists` |
 | `InternalExceptionsFilter` | Catch-all for unhandled exceptions |
 
-`MapProtectedGroup` currently only adds the following filter in addition to the default filters:
+Validation-enabled groups additionally register:
 
 | Filter | Behaviour |
 |---|---|
-| `AuthorizationTodoReminderFilter` | Reminds developers to implement real auth (placeholder to be replaced with actual authorization logic) |
+| `ValidationExceptionFilter` | Converts `FluentValidation.ValidationException` to 400 ProblemDetails (or 404 for specific error codes) |
+
+`MapProtectedGroup(...)` does not currently enforce authorization on its own. Apply authorization policies explicitly where required.
 
 ---
 
@@ -414,5 +424,6 @@ The following filters are registered on all groups via `AddDefaultFilters()` —
 4. Define a nested `Validator : AbstractValidator<Request>` with FluentValidation rules.
 5. Write a `private static (async) ValueTask<T> Handle(...)` method.
 6. In `Map`, chain `.WithRequestValidation<Request>()` and optionally `.WithEnsureEntityExists<>()`.
-7. Register the endpoint in the service's `EndpointRouteBuilderExtensions` under the appropriate group.
-8. Ensure validators are picked up by `AddValidatorsFromAssemblies(...)` in `Program.cs` (they are, as long as the assembly is already included).
+7. Ensure the containing route group adds validation exception handling via `.AddValidationFilters()` or `MapPublicGroupWithValidation(...)` / `MapProtectedGroupWithValidation(...)`.
+8. Register the endpoint in the service's `EndpointRouteBuilderExtensions` under the appropriate group.
+9. Ensure validators are picked up by `AddValidatorsFromAssemblies(...)` in `Program.cs` (they are, as long as the assembly is already included).
