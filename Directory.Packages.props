@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <NoWarn>$(NoWarn);NU1507;SA1633;CA2007</NoWarn>
+    <NoWarn>$(NoWarn);NU1507;SA1633;CA2007;CA1873</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="FluentValidation" Version="12.1.1" />

@@ -1,7 +1,6 @@
 // Global using directives
 global using System.Diagnostics.CodeAnalysis;
-global using System.Text.Json.Serialization;
-global using Demo;
+global using Demo.Apis;
 global using FluentValidation;
 global using JetBrains.Annotations;
 global using Microsoft.AspNetCore.Http.HttpResults;

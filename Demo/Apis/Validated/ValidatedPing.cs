@@ -1,27 +1,27 @@
-namespace Demo;
+namespace Demo.Apis.Validated;
 
 [UsedImplicitly]
-public sealed class ValidatedPingEndpoint : IEndpoint
+public sealed class ValidatedPing : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder builder)
-        => builder.MapGet("/ping", Handler)
-            .WithRequestValidation<Request>();
+        => builder.MapGet("/ping", Handle)
+            .WithName(nameof(ValidatedPing))
+            .WithSummary("Return a validated pong response.")
+            .WithRequestValidation<Request>()
+            .Produces<Ok<string>>();
 
-    private static Ok<string> Handler(
-        [AsParameters] Request request) 
-        => TypedResults.Ok($"Pong: {request.Id}");
-
-    [UsedImplicitly]
-    public sealed record Request(
-        string? Id
-    );
+    private static ValueTask<Ok<string>> Handle([AsParameters] Request request)
+        => ValueTask.FromResult(TypedResults.Ok($"Pong: {request.Id}"));
 
     [UsedImplicitly]
-    public sealed class RequestValidator : AbstractValidator<Request>
+    public sealed record Request(string? Id);
+
+    [UsedImplicitly]
+    public sealed class Validator : AbstractValidator<Request>
     {
         private static readonly string[] PermittedIds = ["foo", "bar"];
 
-        public RequestValidator(ILogger<RequestValidator> logger)
+        public Validator()
         {
             RuleLevelCascadeMode = ClassLevelCascadeMode = CascadeMode.Stop;
 
@@ -36,12 +36,12 @@ public sealed class ValidatedPingEndpoint : IEndpoint
         {
             return values.Length switch
             {
-                <=0 => throw new InvalidOperationException("Cannot listify an empty array"),
+                <= 0 => throw new InvalidOperationException("Cannot listify an empty array"),
                 1 => Quote(values[0]),
-                >=2 => Quoted(values),
+                _ => Quoted(values),
             };
 
-            string Quoted(string[] input)
+            static string Quoted(string[] input)
             {
                 var length = input.Length;
                 var parts = input
@@ -53,7 +53,7 @@ public sealed class ValidatedPingEndpoint : IEndpoint
                 return string.Concat(parts);
             }
 
-            string Quote(string input) => $"'{input}'";
+            static string Quote(string input) => $"'{input}'";
         }
     }
 }
