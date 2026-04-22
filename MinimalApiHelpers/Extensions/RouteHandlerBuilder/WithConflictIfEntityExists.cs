@@ -15,7 +15,7 @@ public static partial class RouteHandlerBuilderExtensions
     /// <param name="entityExists">The function that determines if the entity exists.</param>
     /// <param name="conflictDetail">The detail to include in the ProblemDetails.</param>
     /// <returns>The route handler builder.</returns>
-    internal static RouteHandlerBuilder WithConflictIfEntityExists<TRequest, TService>(
+    public static RouteHandlerBuilder WithConflictIfEntityExists<TRequest, TService>(
         this RouteHandlerBuilder builder,
         Func<HttpContext, TRequest, TService, CancellationToken, Task<bool>> entityExists,
         Func<HttpContext, TRequest, string>? conflictDetail = null)
