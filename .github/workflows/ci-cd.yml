@@ -121,21 +121,28 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.event_name == 'release'
-    
+  
+    permissions:
+      contents: read
+      packages: write
+  
     steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-packages
-        path: ./artifacts
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Push to GitHub Packages
-      run: |
-        for package in ./artifacts/*.nupkg; do
-          dotnet nuget push "$package" --api-key ${{ secrets.PUBLISH_GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate
-        done
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts
+  
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+  
+      - name: Push to GitHub Packages
+        run: |
+          for package in ./artifacts/*.nupkg; do
+            dotnet nuget push "$package" \
+              --api-key ${{ secrets.GITHUB_TOKEN }} \
+              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+              --skip-duplicate
+          done
