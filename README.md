@@ -139,6 +139,7 @@ public sealed class GetWidget : IEndpoint
 - `WithRequestValidation<TRequest>()` validates a bound request object using `IValidator<TRequest>` from DI.
 - `WithRouteParameterValidation<TParam>()` validates a single bound route parameter type.
 - `WithEnsureEntityExists<TRequest, TLookup>(...)` short-circuits with `404 Not Found` when a lookup fails.
+- `WithConflictIfEntityExists<TRequest, TLookup>(...)` short-circuits with `409 Conflict` when a lookup succeeds.
 - `WithRequestedMediaTypeValidation(...)` validates the `Accept` header and stores the selected media type in `HttpContext.Items["RequestedMediaType"]`.
 
 ## Demo and Docs
