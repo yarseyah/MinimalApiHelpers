@@ -1,70 +1,54 @@
-name: CI/CD
+name: Publish Packages
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-  release:
-    types: [ published ]
-
-env:
-  DOTNET_VERSION: '10.0.x'
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  DOTNET_NOLOGO: true
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      is_prerelease:
+        required: true
+        type: boolean
 
 jobs:
-  build-and-test:
+  publish:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
-      is_prerelease: ${{ steps.get_version.outputs.is_prerelease }}
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
-      - name: Get version (MinVer)
-        id: get_version
-        run: |
-          dotnet tool install --global minver-cli
-          VERSION=$(minver)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
-          if [[ "$VERSION" == *-* ]]; then
-            echo "is_prerelease=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_prerelease=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Test
-        run: dotnet test --configuration Release --no-build
-
-      - name: Pack
-        run: dotnet pack --configuration Release --no-build --output ./artifacts
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
         with:
           name: nuget-packages
-          path: ./artifacts/*.nupkg
+          path: ./artifacts
 
-  publish:
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
-    uses: ./.github/workflows/publish.yml
-    with:
-      version: ${{ needs.build-and-test.outputs.version }}
-      is_prerelease: ${{ needs.build-and-test.outputs.is_prerelease }}
-    secrets: inherit
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish to GitHub Packages
+        run: |
+          echo "Publishing version ${{ inputs.version }} to GitHub Packages"
+          for package in ./artifacts/*.nupkg; do
+            echo "Pushing $package to GitHub Packages..."
+            dotnet nuget push "$package" \
+              --api-key ${{ secrets.GITHUB_TOKEN }} \
+              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+              --skip-duplicate
+          done
+
+      - name: Publish to NuGet.org (stable only)
+        if: ${{ inputs.is_prerelease == false }}
+        run: |
+          echo "Publishing stable version ${{ inputs.version }} to NuGet.org"
+          for package in ./artifacts/*.nupkg; do
+            echo "Pushing $package to NuGet.org..."
+            dotnet nuget push "$package" \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
