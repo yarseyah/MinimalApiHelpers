@@ -25,6 +25,12 @@ jobs:
         name: nuget-packages
         path: ./artifacts
 
+    - name: Download symbol artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: symbol-packages
+        path: ./artifacts
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -46,6 +52,16 @@ jobs:
       run: |
         echo "Publishing to NuGet.org"
         for package in ./artifacts/*.nupkg; do
+          dotnet nuget push "$package" \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+        done
+
+    - name: Publish symbols to NuGet.org (main or tags only)
+      if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
+      run: |
+        for package in ./artifacts/*.snupkg; do
           dotnet nuget push "$package" \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \

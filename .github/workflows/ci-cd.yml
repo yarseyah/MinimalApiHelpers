@@ -61,88 +61,11 @@ jobs:
         name: symbol-packages
         path: ./artifacts/*.snupkg
 
-  publish-to-nuget:
+  publish:
     needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      contents: write
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-packages
-        path: ./artifacts
-    
-    - name: Download symbol artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: symbol-packages
-        path: ./artifacts
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Push to NuGet
-      run: |
-        for package in ./artifacts/*.nupkg; do
-          dotnet nuget push "$package" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-        done
-    
-    - name: Push symbols to NuGet
-      run: |
-        for package in ./artifacts/*.snupkg; do
-          dotnet nuget push "$package" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-        done
-
-    - name: Create and push tag
-      run: |
-        VERSION=${{ needs.build-and-test.outputs.version }}
-        if [ -n "$VERSION" ]; then
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
-            echo "Tag $VERSION already exists"
-          else
-            git tag "$VERSION"
-            git push origin "$VERSION"
-          fi
-        fi
-
-  publish-to-github-packages:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
-  
-    permissions:
-      contents: read
-      packages: write
-  
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: nuget-packages
-          path: ./artifacts
-  
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-  
-      - name: Push to GitHub Packages
-        run: |
-          for package in ./artifacts/*.nupkg; do
-            dotnet nuget push "$package" \
-              --api-key ${{ secrets.GITHUB_TOKEN }} \
-              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-              --skip-duplicate
-          done
+    if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/publish.yml
+    with:
+      version: ${{ needs.build-and-test.outputs.version }}
+      is_prerelease: ${{ github.event.release.prerelease == true }}
+    secrets: inherit
