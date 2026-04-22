@@ -41,12 +41,11 @@ jobs:
             --skip-duplicate
         done
 
-    - name: Publish to NuGet.org (stable only)
-      if: ${{ inputs.is_prerelease == false }}
+    - name: Publish to NuGet.org (main or tags only)
+      if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
       run: |
-        echo "Publishing stable version ${{ inputs.version }} to NuGet.org"
+        echo "Publishing to NuGet.org"
         for package in ./artifacts/*.nupkg; do
-          echo "Pushing $package to NuGet.org..."
           dotnet nuget push "$package" \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
