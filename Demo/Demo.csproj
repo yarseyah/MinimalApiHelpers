@@ -11,6 +11,6 @@
     </ItemGroup>
     
     <ItemGroup>
-      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     </ItemGroup>
 </Project>
