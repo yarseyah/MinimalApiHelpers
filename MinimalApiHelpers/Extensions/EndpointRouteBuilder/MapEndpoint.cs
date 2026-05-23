@@ -1,6 +1,6 @@
-using Builder = Microsoft.AspNetCore.Builder;
-
 namespace MinimalApiHelpers.Extensions.EndpointRouteBuilder;
+
+using Builder = Microsoft.AspNetCore.Builder;
 
 public static partial class EndpointRouteBuilderExtensions
 {
@@ -16,11 +16,8 @@ public static partial class EndpointRouteBuilderExtensions
         this IEndpointRouteBuilder app)
         where TEndpoint : IEndpoint
     {
-        var handler = TEndpoint.Map(app);
-
-        if (TEndpoint.AuthorizationPolicy is { Length: > 0 } policy)
-            handler.RequireAuthorization(policy);
-
-        return handler;
+        return (TEndpoint.AuthorizationPolicy is { Length: > 0 } policy)
+            ? TEndpoint.Map(app).RequireAuthorization(policy)
+            : TEndpoint.Map(app);
     }
 }

@@ -6,24 +6,17 @@ namespace MinimalApiHelpers.Filters;
 /// This is for <em>data-shaping</em>, not access gating — the handler uses the pre-computed
 /// flag to decide what data to return, rather than calling <c>IsInRole()</c> directly.
 /// </summary>
-internal sealed class UserRoleFilter : IEndpointFilter
+internal sealed class UserRoleFilter(string roleName) : IEndpointFilter
 {
-    private readonly string _roleName;
-    private readonly string _itemKey;
-
-    public UserRoleFilter(string roleName)
-    {
-        _roleName = roleName;
-        _itemKey = $"Role:{roleName}";
-    }
+    private readonly string itemKey = $"Role:{roleName}";
 
     public async ValueTask<object?> InvokeAsync(
         EndpointFilterInvocationContext context,
         EndpointFilterDelegate next)
     {
         var user = context.HttpContext.User;
-        context.HttpContext.Items[_itemKey] =
-            user.Identity?.IsAuthenticated == true && user.IsInRole(_roleName);
+        context.HttpContext.Items[itemKey] = user.Identity?.IsAuthenticated == true
+                                             && user.IsInRole(roleName);
 
         return await next(context);
     }

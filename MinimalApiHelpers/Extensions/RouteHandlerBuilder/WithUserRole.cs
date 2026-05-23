@@ -1,5 +1,3 @@
-using MinimalApiHelpers.Filters;
-
 namespace MinimalApiHelpers.Extensions.RouteHandlerBuilder;
 
 /// <summary>Data-shaping extensions — pre-computing role presence for handler consumption.</summary>

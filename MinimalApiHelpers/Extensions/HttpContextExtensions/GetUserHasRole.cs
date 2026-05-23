@@ -9,7 +9,9 @@ public static class HttpContextUserRoleExtensions
     /// does not hold the role, and <c>null</c> if no <c>WithUserRole</c> filter was
     /// registered for this role (i.e. the flag was never set).
     /// </summary>
-    public static bool? GetUserHasRole(this Microsoft.AspNetCore.Http.HttpContext httpContext, string roleName)
+    public static bool? GetUserHasRole(
+        this Microsoft.AspNetCore.Http.HttpContext httpContext, 
+        string roleName)
     {
         ArgumentNullException.ThrowIfNull(httpContext);
         return httpContext.Items[$"Role:{roleName}"] as bool?;
