@@ -4,16 +4,18 @@ internal static class EndpointRouteBuilderExtensions
 {
     public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder builder)
     {
-        builder.MapPublicGroup("/validated")
+        var validated = builder.MapPublicGroup("/validated")
             .WithTags("Validated")
-            .AddValidationFilters()
-            .MapEndpoint<Validated.ValidatedPing>()
-            .MapEndpoint<Common.Pong>();
+            .AddValidationFilters();
 
-        builder.MapPublicGroup("/unvalidated")
-            .WithTags("Unvalidated")
-            .MapEndpoint<Unvalidated.UnvalidatedPing>()
-            .MapEndpoint<Common.Pong>();
+        validated.MapEndpoint<Validated.ValidatedPing>();
+        validated.MapEndpoint<Common.Pong>();
+
+        var unvalidated = builder.MapPublicGroup("/unvalidated")
+            .WithTags("Unvalidated");
+
+        unvalidated.MapEndpoint<Unvalidated.UnvalidatedPing>();
+        unvalidated.MapEndpoint<Common.Pong>();
 
         return builder;
     }

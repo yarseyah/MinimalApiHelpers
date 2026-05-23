@@ -3,7 +3,7 @@ namespace Demo.Apis.Common;
 [UsedImplicitly]
 public sealed class Pong : IEndpoint
 {
-    public static void Map(IEndpointRouteBuilder builder)
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder builder)
         => builder.MapGet("/pong", Handle)
             .WithName(nameof(Pong))
             .WithSummary("Return a static pong response.")

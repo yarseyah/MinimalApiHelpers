@@ -3,7 +3,7 @@ namespace Demo.Apis.Validated;
 [UsedImplicitly]
 public sealed class ValidatedPing : IEndpoint
 {
-    public static void Map(IEndpointRouteBuilder builder)
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder builder)
         => builder.MapGet("/ping", Handle)
             .WithName(nameof(ValidatedPing))
             .WithSummary("Return a validated pong response.")
