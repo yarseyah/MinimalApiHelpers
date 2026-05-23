@@ -1,13 +1,8 @@
 namespace MinimalApiHelpers.FluentValidation.Filters;
 
-public class ValidationExceptionFilter : IEndpointFilter
+public class ValidationExceptionFilter(
+    NotFoundErrorCodeMapping? notFoundMapping = null) : IEndpointFilter
 {
-    private static readonly string[] ErrorCodesToConvertToNotFound =
-    [
-        "team-not-found",
-        "season-not-found"
-    ];
-
     public async ValueTask<object?> InvokeAsync(
         EndpointFilterInvocationContext context,
         EndpointFilterDelegate next)
@@ -21,8 +16,9 @@ public class ValidationExceptionFilter : IEndpointFilter
         }
         catch (ValidationException ex)
         {
-            // Convert specific errors to a NotFound response
-            if (ex.Errors.All(e => ErrorCodesToConvertToNotFound.Contains(e.ErrorCode)))
+            if (notFoundMapping is not null
+                && notFoundMapping.Count > 0
+                && ex.Errors.All(e => notFoundMapping.Contains(e.ErrorCode)))
             {
                 return Results.NotFound();
             }
